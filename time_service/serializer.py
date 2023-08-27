@@ -3,13 +3,11 @@ from user_service.serializer import UserSerializer
 from rest_framework import serializers
 
 class TimeInSerializer(serializers.ModelSerializer):
-    user=UserSerializer()
     class Meta:
         model = TimeIn
-        fields = '__all__'
+        fields = ("day_in","time_in")
 
 class TimeOutSerializer(serializers.ModelSerializer):
-    user=UserSerializer()
     class Meta:
         model = TimeOut
-        fields = '__all__'
+        fields = ("day_out","time_out")

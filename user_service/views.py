@@ -39,7 +39,8 @@ def register_user(request):
     if check:
         user.save()
         account_new.save()
-        return Response({"data":str(user.id_user),"message":"Success","code":200},status=status.HTTP_201_CREATED)
+        serializer = UserSerializer(user)
+        return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_201_CREATED)
     else:
         return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
 
@@ -63,7 +64,7 @@ def login(request):
     for account in listAccount:
         if account.username==username:
             if account.password==password:
-                serializer = AccountSerializer(account)
+                serializer = UserSerializer(account.user)
                 return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
             else:
                 return Response({"data":"","message":"Wrong","code":400},status=status.HTTP_400_BAD_REQUEST)
@@ -116,7 +117,7 @@ def change_password(request,id_user):
         if data.get("password"):
             account.set_password(data.get("password"))
             account.save()
-            serializer = AccountSerializer(account)
+            serializer = UserSerializer(user)
             return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
     return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
 
@@ -125,7 +126,6 @@ def change_password(request,id_user):
 def delete_user(request,id_user):
     listAccount=Account.objects.all()
     for account in listAccount:
-        print(account.user.id_user)
         if account.user.id_user==id_user:
             account.delete()
             return Response({"data":"","message":"Success","code":200},status=status.HTTP_200_OK)

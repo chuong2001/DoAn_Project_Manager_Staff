@@ -9,7 +9,7 @@ from rest_framework import status
 
 # Create your views here.
 
-@api_view(['PUSH'])
+@api_view(['POST'])
 def add_comment(request,id_user,id_post):
     user=User.objects.get(id_user=id_user)
     post=Post.objects.get(id_post=id_post)
