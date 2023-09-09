@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('user_service', '0002_rename_id_user_account_user_and_more'),
+        ('user_service', '0001_initial'),
     ]
 
     operations = [

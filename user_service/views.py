@@ -52,7 +52,8 @@ def user_detail(request,id_user):
         serializer = UserSerializer(user)
         return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
     else:
-        return Response({"data":"","message":"Not Found","code":404},status=status.HTTP_404_NOT_FOUND)
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Not Found","code":404},status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
@@ -67,9 +68,10 @@ def login(request):
                 serializer = UserSerializer(account.user)
                 return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
             else:
-                return Response({"data":"","message":"Wrong","code":400},status=status.HTTP_400_BAD_REQUEST)
-            
-    return Response({"data":"","message":"Not exist","code":404},status=status.HTTP_404_NOT_FOUND)
+                serializer = UserSerializer(User())
+                return Response({"data":serializer.data,"message":"Wrong","code":400},status=status.HTTP_200_OK)
+    serializer = UserSerializer(User())    
+    return Response({"data":serializer.data,"message":"Not exist","code":404},status=status.HTTP_200_OK)
     
     
 @api_view(['PUT'])

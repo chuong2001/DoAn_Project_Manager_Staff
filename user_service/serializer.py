@@ -20,16 +20,16 @@ class PositionSerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ("username","password")
+        fields = ("id","username","password")
 
 class UserSerializer(serializers.ModelSerializer):
     part = PartSerializer()
     position = PositionSerializer()
-    account = AccountSerializer()
-    time_ins = TimeInSerializer()
-    time_outs = TimeOutSerializer()
-    posts = PostSerializer()
-    comments = CommentSerializer()
+    account = serializers.SerializerMethodField()  
+    time_ins =serializers.SerializerMethodField()  
+    time_outs = serializers.SerializerMethodField()  
+    posts =serializers.SerializerMethodField()  
+    comments = serializers.SerializerMethodField()  
     class Meta:
         model = User
         fields = '__all__'
@@ -60,6 +60,19 @@ class UserSerializer(serializers.ModelSerializer):
     def get_posts(self, obj):
         posts = Post.objects.filter(user=obj)
         return PostSerializer(posts, many=True).data
+    
+    # def get_account(self, obj):
+    #     account = Account.objects.get(user=obj)
+    #     return AccountSerializer(account).data
+    
+    def get_account(self, obj):
+        if obj:
+            try:
+                account = Account.objects.get(user=obj)
+                return AccountSerializer(account).data
+            except Account.DoesNotExist:
+                return AccountSerializer(Account()).data 
+        return AccountSerializer(Account()).data
     
     def get_comments(self, obj):
         comments = Comment.objects.filter(user=obj)

@@ -3,6 +3,8 @@ from user_service.models import User
 
 class Post(models.Model):
     id_post=models.AutoField(primary_key=True)
+    type_post=models.CharField(max_length=250)
+    header_post=models.CharField(max_length=250)
     time_post=models.DateTimeField()
     content=models.TextField()
     num_like=models.IntegerField()
@@ -17,6 +19,12 @@ class Post(models.Model):
     
     def set_time_post(self, time_post):
         self.time_post = time_post
+    
+    def set_type_post(self, type_post):
+        self.type_post = type_post
+        
+    def set_header_post(self, header_post):
+        self.header_post = header_post
     
     def set_content(self, content):
         self.content = content

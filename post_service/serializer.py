@@ -2,7 +2,6 @@ from .models import Image,Post
 from comment_service.models import Comment
 from rest_framework import serializers
 from comment_service.serializer import CommentSerializer
-from user_service.serializer import UserSerializer
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
