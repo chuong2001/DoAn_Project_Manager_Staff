@@ -6,6 +6,7 @@ from post_service.models import Post,Image
 from post_service.serializer import PostSerializer
 from comment_service.models import Comment
 from comment_service.serializer import CommentSerializer
+from datetime import datetime
 
 class PartSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,26 +36,37 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_time_ins(self, obj):
-        start_day = self.context.get('start_day')  
-        end_day = self.context.get('end_day')      
-        
+        start_day = self.context.get('start_day')
+        end_day = self.context.get('end_day')
         if start_day and end_day:
-            time_ins = TimeIn.objects.filter(user=obj, day_in=(start_day, end_day))
+            time_ins = TimeIn.objects.filter(user=obj, day_in__range=(start_day, end_day))
         else:
             time_ins = TimeIn.objects.filter(user=obj)
-            
-        return TimeInSerializer(time_ins, many=True).data
+        time_ins_fomat=[]
+        for time in time_ins:
+            str_time_date=str(time.day_in)
+            date_object = datetime.strptime(str_time_date, "%Y-%m-%d")
+            new_date_string = date_object.strftime("%d-%m-%Y")    
+            time.set_day_in(new_date_string)
+            time_ins_fomat.append(time)
+        return TimeInSerializer(time_ins_fomat, many=True).data
 
     def get_time_outs(self, obj):
         start_day = self.context.get('start_day')
         end_day = self.context.get('end_day')
         
         if start_day and end_day:
-            time_outs = TimeOut.objects.filter(user=obj, day_out=(start_day, end_day))
+            time_outs = TimeOut.objects.filter(user=obj, day_out__range=(start_day, end_day))
         else:
             time_outs = TimeOut.objects.filter(user=obj)
-            
-        return TimeOutSerializer(time_outs, many=True).data
+        time_outs_fomat=[]
+        for time in time_outs:
+            str_time_date=str(time.day_out)
+            date_object = datetime.strptime(str_time_date, "%Y-%m-%d")
+            new_date_string = date_object.strftime("%d-%m-%Y")    
+            time.set_day_out(new_date_string)
+            time_outs_fomat.append(time)    
+        return TimeOutSerializer(time_outs_fomat, many=True).data
 
     
     def get_posts(self, obj):

@@ -31,3 +31,11 @@ def update_setting(request):
         return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
     return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(['GET'])
+def get_setting(request):
+    setting=Setting.objects.get(id_setting=1)
+    if setting:
+        serializer = SettingSerializer(setting)
+        return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
+    return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
+    

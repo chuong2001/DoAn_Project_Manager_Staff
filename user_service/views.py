@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from .serializer import UserSerializer,AccountSerializer
 from rest_framework import status
 import json
+from datetime import datetime
 # Create your views here.
 
 @api_view(['POST'])
@@ -48,7 +49,11 @@ def register_user(request):
 @api_view(['GET'])
 def user_detail(request,id_user):
     user=User.objects.get(id_user=id_user)
-    if user is not None:    
+    if user is not None:
+        str_birthday=str(user.birthday)
+        date_object = datetime.strptime(str_birthday, "%Y-%m-%d")
+        new_date_string = date_object.strftime("%d-%m-%Y")    
+        user.set_birthday(new_date_string)
         serializer = UserSerializer(user)
         return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
     else:
@@ -95,6 +100,9 @@ def update_user(request,id_user):
             user.set_phone(data.get('phone'))
         if data.get('wage'):
             user.set_wage(data.get('wage'))
+        date_object = datetime.strptime(user.birthday, "%d-%m-%Y")
+        new_date_string = date_object.strftime("%Y-%m-%d")
+        user.set_birthday(new_date_string)
         user.save()
         serializer = UserSerializer(user)
         return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
@@ -121,7 +129,8 @@ def change_password(request,id_user):
             account.save()
             serializer = UserSerializer(user)
             return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
-    return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
+    serializer = UserSerializer(user)
+    return Response({"data":serializer.data,"message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['DELETE'])
