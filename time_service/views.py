@@ -6,6 +6,7 @@ from user_service.serializer import UserSerializer
 from rest_framework.response import Response
 from .serializer import TimeInSerializer,TimeOutSerializer
 from rest_framework import status
+from datetime import datetime
 from django.db.models import Q
 
 # Create your views here.
@@ -34,9 +35,13 @@ def get_time_user(request,id_user):
     data=request.GET
     day_start=data.get("day_start")
     day_end=data.get("day_end")
+    date_object1 = datetime.strptime(day_start, "%d-%m-%Y")
+    start_day_new = date_object1.strftime("%Y-%m-%d")   
+    date_object2 = datetime.strptime(day_end, "%d-%m-%Y")
+    end_day_new = date_object2.strftime("%Y-%m-%d") 
     user=User.objects.get(id_user=id_user)
     if user:
-        serializer = UserSerializer(user, context={'start_day': day_start, 'end_day': day_end})
+        serializer = UserSerializer(user, context={'start_day': start_day_new, 'end_day': end_day_new})
         return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
     return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
 

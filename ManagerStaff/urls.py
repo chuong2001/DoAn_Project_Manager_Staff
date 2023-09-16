@@ -8,4 +8,5 @@ urlpatterns = [
     path("api/post/", include("post_service.urls")),
     path("api/setting/", include("setting_service.urls")),
     path("api/time/", include("time_service.urls")),
+    path("api/feedback/", include("feedback_service.urls")),
 ]

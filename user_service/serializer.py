@@ -6,6 +6,8 @@ from post_service.models import Post,Image
 from post_service.serializer import PostSerializer
 from comment_service.models import Comment
 from comment_service.serializer import CommentSerializer
+from feedback_service.serializer import FeedbackSerializer
+from feedback_service.models import Feedback
 from datetime import datetime
 
 class PartSerializer(serializers.ModelSerializer):
@@ -31,6 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
     time_outs = serializers.SerializerMethodField()  
     posts =serializers.SerializerMethodField()  
     comments = serializers.SerializerMethodField()  
+    feedbacks = serializers.SerializerMethodField()  
     class Meta:
         model = User
         fields = '__all__'
@@ -38,6 +41,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_time_ins(self, obj):
         start_day = self.context.get('start_day')
         end_day = self.context.get('end_day')
+  
         if start_day and end_day:
             time_ins = TimeIn.objects.filter(user=obj, day_in__range=(start_day, end_day))
         else:
@@ -54,7 +58,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_time_outs(self, obj):
         start_day = self.context.get('start_day')
         end_day = self.context.get('end_day')
-        
+
         if start_day and end_day:
             time_outs = TimeOut.objects.filter(user=obj, day_out__range=(start_day, end_day))
         else:
@@ -73,6 +77,10 @@ class UserSerializer(serializers.ModelSerializer):
         posts = Post.objects.filter(user=obj)
         return PostSerializer(posts, many=True).data
     
+    def get_feedbacks(self, obj):
+        feedbacks = Feedback.objects.filter(user=obj)
+        return FeedbackSerializer(feedbacks, many=True).data
+
     # def get_account(self, obj):
     #     account = Account.objects.get(user=obj)
     #     return AccountSerializer(account).data
