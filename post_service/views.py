@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializer import PostSerializer
 from rest_framework import status
+from datetime import datetime
+import pytz
 
 # Create your views here.
 @api_view(['POST'])
@@ -56,10 +58,38 @@ def update_post(request,id_post):
 @api_view(['GET'])
 def all_post(request):
     list_post=Post.objects.all()
+    list_post_new=[]
     if list_post:
-        serializer = PostSerializer(list_post,many=True)
+        for post in list_post:
+            specific_time = datetime.fromisoformat(str(post.time_post))
+            time_string_without_offset = specific_time.strftime("%Y-%m-%d %H:%M:%S")
+            input_time = datetime.strptime(time_string_without_offset, "%Y-%m-%d %H:%M:%S")
+            time_formated_day = input_time.strftime("%d-%m-%Y")
+            time_formatted_hour = input_time.strftime("%H:%M")
+            
+            current_time = datetime.now()
+            time_difference = current_time - input_time
+            seconds = time_difference.total_seconds()
+            minutes = seconds / 60
+            hours = minutes / 60
+            time=""
+            if hours>48:
+                time=time_formated_day+" lúc "+time_formatted_hour
+            elif hours<=48 and hours>=24:
+                time="Hôm qua lúc "+time_formatted_hour 
+            elif hours>=1 and hours<24:
+                time=str(int(hours))+" giờ"
+            elif minutes>0:
+                time=str(int(minutes))+" phút"
+            else:
+                time="Vừa xong"
+            post.set_time_post(time)
+            print(time_difference.total_seconds())
+            list_post_new.append(post)
+        serializer = PostSerializer(list_post_new,many=True)
         return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
-    return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
+    serializer = PostSerializer(list_post_new,many=True)
+    return Response({"data":serializer.data,"message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['DELETE'])
@@ -78,6 +108,29 @@ def delete_post(request,id_post):
 def post_detail(request,id_post):
     post=Post.objects.get(id_post=id_post)
     if post:
+        specific_time = datetime.fromisoformat(str(post.time_post))
+        time_string_without_offset = specific_time.strftime("%Y-%m-%d %H:%M:%S")
+        input_time = datetime.strptime(time_string_without_offset, "%Y-%m-%d %H:%M:%S")
+        time_formated_day = input_time.strftime("%d-%m-%Y")
+        time_formatted_hour = input_time.strftime("%H:%M")
+        
+        current_time = datetime.now()
+        time_difference = current_time - input_time
+        seconds = time_difference.total_seconds()
+        minutes = seconds / 60
+        hours = minutes / 60
+        time=""
+        if hours>48:
+            time=time_formated_day+" lúc "+time_formatted_hour
+        elif hours<=48 and hours>=24:
+            time="Hôm qua lúc "+time_formatted_hour 
+        elif hours>=1 and hours<24:
+            time=str(int(hours))+" giờ"
+        elif minutes>0:
+            time=str(int(minutes))+" phút"
+        else:
+            time="Vừa xong"
+        post.set_time_post(time)
         serializer = PostSerializer(post)
         return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
     return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
