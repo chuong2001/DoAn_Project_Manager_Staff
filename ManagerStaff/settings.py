@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-8r6b$uok8h4!d4zia_r=+d1u7wl87d+c^(gk4(1#_#1w5to52$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.12.100']
+ALLOWED_HOSTS = ['192.168.11.100']
 
 
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "post_service",
     "comment_service",
     "feedback_service",
+    "calendar_service",
 ]
 
 MIDDLEWARE = [

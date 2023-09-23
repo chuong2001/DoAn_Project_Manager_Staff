@@ -27,19 +27,25 @@ class PostSerializer(serializers.ModelSerializer):
             specific_time = datetime.fromisoformat(str(comment.time_cmt))
             time_string_without_offset = specific_time.strftime("%Y-%m-%d %H:%M:%S")
             input_time = datetime.strptime(time_string_without_offset, "%Y-%m-%d %H:%M:%S")
-            time_formated_day = input_time.strftime("%d-%m-%Y")
-            time_formatted_hour = input_time.strftime("%H:%M")
             
             current_time = datetime.now()
             time_difference = current_time - input_time
             seconds = time_difference.total_seconds()
-            minutes = seconds / 60
-            hours = minutes / 60
+            minutes = seconds // 60
+            hours = minutes // 60
+            days=hours//24
+            weeks=days//7
+            months=days//30
+            years=months//12
             time=""
-            if hours>48:
-                time=time_formated_day+" lúc "+time_formatted_hour
-            elif hours<=48 and hours>=24:
-                time="Hôm qua lúc "+time_formatted_hour 
+            if years>0:
+                time=str(int(years))+" năm"
+            elif months>0:
+                time=str(int(months))+" tháng"
+            elif weeks>0:
+                time=str(int(weeks))+" tuần"
+            elif days>0:
+                time=str(int(days))+" ngày"
             elif hours>=1 and hours<24:
                 time=str(int(hours))+" giờ"
             elif minutes>0:

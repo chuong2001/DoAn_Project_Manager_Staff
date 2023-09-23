@@ -9,4 +9,5 @@ urlpatterns = [
     path("api/setting/", include("setting_service.urls")),
     path("api/time/", include("time_service.urls")),
     path("api/feedback/", include("feedback_service.urls")),
+    path("api/calendar/", include("calendar_service.urls")),
 ]

@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializer import CommentSerializer
 from rest_framework import status
+from datetime import datetime
 
 # Create your views here.
 
@@ -22,9 +23,39 @@ def add_comment(request,id_user,id_post):
         post=post
         )
         comment.save()
+        specific_time = datetime.fromisoformat(str(comment.time_cmt))
+        time_string_without_offset = specific_time.strftime("%Y-%m-%d %H:%M:%S")
+        input_time = datetime.strptime(time_string_without_offset, "%Y-%m-%d %H:%M:%S")
+        
+        current_time = datetime.now()
+        time_difference = current_time - input_time
+        seconds = time_difference.total_seconds()
+        minutes = seconds // 60
+        hours = minutes // 60
+        days=hours//24
+        weeks=days//7
+        months=days//30
+        years=months//12
+        time=""
+        if years>0:
+            time=str(years)+" năm"
+        elif months>0:
+            time=str(months)+" tháng"
+        elif weeks>0:
+            time=str(weeks)+" tuần"
+        elif days>0:
+            time=str(days)+" ngày"
+        elif hours>=1 and hours<24:
+            time=str(int(hours))+" giờ"
+        elif minutes>0:
+            time=str(int(minutes))+" phút"
+        else:
+            time="Vừa xong"
+        comment.set_time_cmt(time)
         serializer = CommentSerializer(comment)
         return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
-    return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
+    serializer = CommentSerializer(Comment())
+    return Response({"data":serializer.data,"message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PUT'])
