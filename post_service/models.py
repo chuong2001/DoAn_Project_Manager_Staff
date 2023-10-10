@@ -1,15 +1,29 @@
 from django.db import models
 from user_service.models import User
 
+class TypePost(models.Model):
+    id_type=models.AutoField(primary_key=True)
+    type_name=models.CharField(max_length=250)
+    describe=models.TextField()
+
+    def set_id_type(self, id_type):
+        self.id_type=id_type
+    
+    def set_type_name(self, type_name):
+        self.type_name=type_name
+        
+    def set_describe(self, describe):
+        self.describe=describe
+
 class Post(models.Model):
     id_post=models.AutoField(primary_key=True)
-    type_post=models.CharField(max_length=250)
     header_post=models.CharField(max_length=250)
     time_post=models.DateTimeField()
     content=models.TextField()
     num_like=models.IntegerField()
     num_comment=models.IntegerField()
     user  =  models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    type_post  =  models.ForeignKey(TypePost, null=True, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.id_post
@@ -42,3 +56,4 @@ class Image(models.Model):
 
     def set_image(self, image):
         self.image=image
+        

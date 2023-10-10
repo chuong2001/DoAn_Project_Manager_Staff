@@ -1,8 +1,13 @@
-from .models import Image,Post
+from .models import Image,Post,TypePost
 from comment_service.models import Comment
 from rest_framework import serializers
 from comment_service.serializer import CommentSerializer
 from datetime import datetime
+
+class TypePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TypePost
+        fields = '__all__'
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,6 +16,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()  
+    type_post = TypePostSerializer()
     comments = serializers.SerializerMethodField()  
     class Meta:
         model = Post

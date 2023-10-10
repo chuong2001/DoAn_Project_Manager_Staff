@@ -7,7 +7,7 @@ class Comment(models.Model):
     id_comment=models.AutoField(primary_key=True)
     time_cmt=models.DateTimeField()
     content=models.TextField()
-    post  =  models.ForeignKey(Post, null=True, on_delete=models.CASCADE)
+    post  =  models.ForeignKey(Post, null=True, on_delete=models.CASCADE,related_name='comments')
     user  =  models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     
     def __str__(self):
@@ -21,3 +21,9 @@ class Comment(models.Model):
         
     def set_content(self, content):
         self.content = content
+        
+class UserRead(models.Model):
+    id_read=models.AutoField(primary_key=True)
+    comment  =  models.ForeignKey(Comment, null=True, on_delete=models.CASCADE)
+    user  =  models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+        

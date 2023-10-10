@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ SECRET_KEY = "django-insecure-8r6b$uok8h4!d4zia_r=+d1u7wl87d+c^(gk4(1#_#1w5to52$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.11.100']
+ALLOWED_HOSTS = ['192.168.1.9']
 
 
 
@@ -41,12 +42,23 @@ INSTALLED_APPS = [
     "rest_framework",
     "user_service",
     "time_service",
+    "channels",
     "setting_service",
     "post_service",
     "comment_service",
     "feedback_service",
     "calendar_service",
+    "notify_service",
 ]
+
+ASGI_APPLICATION = "project.routing.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -115,6 +127,12 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 
 USE_I18N = True
+
+# settings.py
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 
 USE_TZ = True
 
