@@ -5,15 +5,22 @@ from time_service.models import TimeIn,TimeOut
 from post_service.models import Post,Image
 from post_service.serializer import PostSerializer
 from comment_service.models import Comment
+from calendar_service.models import Calendar
+from calendar_service.serializer import CalendarSerializer
 from comment_service.serializer import CommentSerializer
 from feedback_service.serializer import FeedbackSerializer
 from feedback_service.models import Feedback
 from datetime import datetime
 
 class PartSerializer(serializers.ModelSerializer):
+    calendars = serializers.SerializerMethodField()  
     class Meta:
         model = Part
         fields = '__all__'
+    
+    def get_calendars(self, obj):
+        calendars = Calendar.objects.filter(part=obj)
+        return CalendarSerializer(calendars, many=True).data
     
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,7 +30,7 @@ class PositionSerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ("id","username","password")
+        fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
     part = PartSerializer()

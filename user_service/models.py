@@ -47,6 +47,7 @@ class User(models.Model):
     avatar=models.TextField(null=True)
     full_name=models.CharField(max_length=250)
     birthday=models.DateField()
+    is_admin=models.IntegerField()
     gender=models.CharField(max_length=250)
     address=models.CharField(max_length=250)
     email=models.EmailField()
@@ -69,6 +70,9 @@ class User(models.Model):
     
     def set_birthday(self, birthday):
         self.birthday = birthday
+        
+    def set_is_admin(self, is_admin):
+        self.is_admin = is_admin
     
     def set_gender(self, gender):
         self.gender = gender
@@ -95,6 +99,8 @@ class User(models.Model):
 class Account(models.Model):
     username=models.CharField(max_length=250)
     password=models.CharField(max_length=250)
+    code=models.CharField(max_length=250)
+    key=models.TextField()
     user  =  models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
     def set_username(self, username):
@@ -102,6 +108,12 @@ class Account(models.Model):
     
     def set_password(self, password):
         self.password = password
+        
+    def set_key(self, key):
+        self.key = key
+        
+    def set_code(self, code):
+        self.code = code
         
     def set_user(self, user):
         self.user = user

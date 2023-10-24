@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import TimeIn,TimeOut
-from user_service.models import User
+from user_service.models import User,Account
 from rest_framework.decorators import api_view
 from user_service.serializer import UserSerializer
 from rest_framework.response import Response
@@ -8,48 +8,88 @@ from .serializer import TimeInSerializer,TimeOutSerializer
 from rest_framework import status
 from datetime import datetime
 from django.db.models import Q
+from user_service.jsonwebtokens import create_jwt,verify_jwt
 
 # Create your views here.
 
+def checkAuthorization(request):
+    authorization_header = request.META.get('HTTP_AUTHORIZATION')
+    decoded_data=verify_jwt(authorization_header)
+    if isinstance(decoded_data, dict)==False:
+        return 1
+    else:
+        authorization=User.objects.get(id_user=decoded_data['data']['id_user'])
+        account_authorization=Account.objects.get(user=authorization)
+        if authorization is not None and account_authorization is not None:
+            return 0
+    return 2
+
+
 @api_view(['POST'])
 def add_time(request,id_user):
-    data=request.GET
-    user=User.objects.get(id_user=id_user)
-    if user:
-        list_time_ins= TimeIn.objects.filter(user=user)
-        list_time_outs=TimeOut.objects.filter(user=user)
-        day=data.get("day")
-        time=data.get("time")
-        
-        if len(list_time_ins)==len(list_time_outs):
-            TimeIn.objects.create(day_in=day,time_in=time,user=user)
-        else:
-            TimeOut.objects.create(day_out=day,time_out=time,user=user)
-        serializer = UserSerializer(user)
-        return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
-    return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
+    checkAu=checkAuthorization(request)
+    if checkAu==0:
+        data=request.GET
+        user=User.objects.get(id_user=id_user)
+        if user is not None:
+            list_time_ins= TimeIn.objects.filter(user=user)
+            list_time_outs=TimeOut.objects.filter(user=user)
+            day=data.get("day")
+            time=data.get("time")
+            
+            if len(list_time_ins)==len(list_time_outs):
+                TimeIn.objects.create(day_in=day,time_in=time,user=user)
+            else:
+                TimeOut.objects.create(day_out=day,time_out=time,user=user)
+            serializer = UserSerializer(user)
+            return Response({"data":serializer.data,"message":"Success","code":201},status=status.HTTP_201_CREATED)
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Not found","code":404},status=status.HTTP_200_OK)
+    elif checkAu==1:
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Expired","code":401},status=status.HTTP_200_OK)
+    else:
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Failed","code":400},status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 def get_time_user(request,id_user):
-    data=request.GET
-    day_start=data.get("day_start")
-    day_end=data.get("day_end")
-    date_object1 = datetime.strptime(day_start, "%d-%m-%Y")
-    start_day_new = date_object1.strftime("%Y-%m-%d")   
-    date_object2 = datetime.strptime(day_end, "%d-%m-%Y")
-    end_day_new = date_object2.strftime("%Y-%m-%d") 
-    user=User.objects.get(id_user=id_user)
-    if user:
-        serializer = UserSerializer(user, context={'start_day': start_day_new, 'end_day': end_day_new})
-        return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
-    return Response({"data":"","message":"Failded","code":400},status=status.HTTP_400_BAD_REQUEST)
+    checkAu=checkAuthorization(request)
+    if checkAu==0:
+        data=request.GET
+        day_start=data.get("day_start")
+        day_end=data.get("day_end")
+        date_object1 = datetime.strptime(day_start, "%d-%m-%Y")
+        start_day_new = date_object1.strftime("%Y-%m-%d")   
+        date_object2 = datetime.strptime(day_end, "%d-%m-%Y")
+        end_day_new = date_object2.strftime("%Y-%m-%d") 
+        user=User.objects.get(id_user=id_user)
+        if user is not None:
+            serializer = UserSerializer(user, context={'start_day': start_day_new, 'end_day': end_day_new})
+            return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Not found","code":404},status=status.HTTP_200_OK)
+    elif checkAu==1:
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Expired","code":401},status=status.HTTP_200_OK)
+    else:
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Failed","code":400},status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_time_all(request):
-    data=request.GET
-    day_start=data.get("day_start")
-    day_end=data.get("day_end")
-    list_user=User.objects.all()
-    serializer = UserSerializer(list_user,Many=True, context={'start_day': day_start, 'end_day': day_end})
-    return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
+    checkAu=checkAuthorization(request)
+    if checkAu==0:
+        data=request.GET
+        day_start=data.get("day_start")
+        day_end=data.get("day_end")
+        list_user=User.objects.all()
+        serializer = UserSerializer(list_user,Many=True, context={'start_day': day_start, 'end_day': day_end})
+        return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
+    elif checkAu==1:
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Expired","code":401},status=status.HTTP_200_OK)
+    else:
+        serializer = UserSerializer(User())
+        return Response({"data":serializer.data,"message":"Failed","code":400},status=status.HTTP_200_OK)

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = "django-insecure-8r6b$uok8h4!d4zia_r=+d1u7wl87d+c^(gk4(1#_#1w5to52$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.9']
+ALLOWED_HOSTS = ['192.168.11.103']
 
 
 
@@ -44,21 +45,12 @@ INSTALLED_APPS = [
     "time_service",
     "channels",
     "setting_service",
+    "rest_framework_simplejwt",
     "post_service",
     "comment_service",
     "feedback_service",
     "calendar_service",
-    "notify_service",
 ]
-
-ASGI_APPLICATION = "project.routing.application"
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
-}
-
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -88,7 +80,18 @@ TEMPLATES = [
     },
 ]
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
 WSGI_APPLICATION = "ManagerStaff.wsgi.application"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
 
 
 # Database
@@ -132,6 +135,16 @@ USE_I18N = True
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# settings.py
+
+# Cấu hình email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Thay thế bằng SMTP server của bạn
+EMAIL_PORT = 587  # Thay thế bằng cổng SMTP của bạn
+EMAIL_USE_TLS = True  # Sử dụng TLS (True hoặc False)
+EMAIL_HOST_USER = 'congtycnd01@gmail.com'  # Thay thế bằng địa chỉ email của bạn
+EMAIL_HOST_PASSWORD = 'itvk rlai nadl kmqh'  # Thay thế bằng mật khẩu email của bạn
 
 
 USE_TZ = True

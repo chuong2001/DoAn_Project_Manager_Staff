@@ -4,6 +4,8 @@ from rest_framework import serializers
 from comment_service.serializer import CommentSerializer
 from datetime import datetime
 
+mainUrl='http:/192.168.1.13:8000/'
+
 class TypePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = TypePost
@@ -24,6 +26,11 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_images(self, obj):
         images = Image.objects.filter(post=obj)
+        list=[]
+        for image in images:
+            image.set_image(mainUrl+image.image)
+            list.append(image)
+        images=list
         return ImageSerializer(images, many=True).data
     
     def get_comments(self, obj):
