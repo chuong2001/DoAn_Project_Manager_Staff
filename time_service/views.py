@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from .serializer import TimeInSerializer,TimeOutSerializer
 from rest_framework import status
 from datetime import datetime
+from notification_service.models import NotificationPost
 from django.db.models import Q
 from user_service.jsonwebtokens import create_jwt,verify_jwt
 
@@ -37,10 +38,25 @@ def add_time(request,id_user):
             day=data.get("day")
             time=data.get("time")
             
+            date_obj = datetime.strptime(day, '%Y-%m-%d')
+            new_s = date_obj.strftime('%d-%m-%Y')
+            
             if len(list_time_ins)==len(list_time_outs):
-                TimeIn.objects.create(day_in=day,time_in=time,user=user)
+                timein=TimeIn()
+                timein.set_day_in(day)
+                timein.set_time_in(time)
+                timein.set_user(user)
+                timein.save()
+                NotificationPost.objects.create(title_notification='Chấm công thành công',body_notification='Bạn vừa đến công ty vào ngày '+new_s+' lúc '+time,time_notification=day+' '+time,is_read=0,type_notification=2,id_data=timein.id_time_in,user=user)
             else:
-                TimeOut.objects.create(day_out=day,time_out=time,user=user)
+                timeout=TimeOut()
+                timeout.set_day_out(day)
+                timeout.set_time_out(time)
+                timeout.set_user(user)
+                timeout.save()
+                NotificationPost.objects.create(title_notification='Chấm công thành công',body_notification='Bạn vừa rời công ty vào ngày '+new_s+' lúc '+time,time_notification=day+' '+time,is_read=0,type_notification=2,id_data=timeout.id_time_out,user=user)
+
+            
             serializer = UserSerializer(user)
             return Response({"data":serializer.data,"message":"Success","code":201},status=status.HTTP_201_CREATED)
         serializer = UserSerializer(User())

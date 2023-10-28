@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "user_service",
     "time_service",
     "channels",
+    "notification_service",
     "setting_service",
     "rest_framework_simplejwt",
     "post_service",

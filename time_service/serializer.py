@@ -4,9 +4,9 @@ from rest_framework import serializers
 class TimeInSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeIn
-        fields = ("id","day_in","time_in")
+        fields = '__all__'
 
 class TimeOutSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeOut
-        fields = ("id","day_out","time_out")
+        fields = '__all__'

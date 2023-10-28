@@ -4,7 +4,7 @@ from rest_framework import serializers
 from comment_service.serializer import CommentSerializer
 from datetime import datetime
 
-mainUrl='http:/192.168.1.13:8000/'
+mainUrl='http:/192.168.11.103:8000/'
 
 class TypePostSerializer(serializers.ModelSerializer):
     class Meta:

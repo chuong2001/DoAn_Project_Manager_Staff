@@ -9,6 +9,7 @@ from rest_framework import status
 from datetime import datetime
 from django.db.models import Q
 from user_service.jsonwebtokens import verify_jwt
+from notification_service.models import NotificationPost
 
 # Create your views here.
 
@@ -39,6 +40,23 @@ def add_comment(request,id_user,id_post):
             post=post
             )
             comment.save()
+            
+            listComment=Comment.objects.filter(post=post)
+            listUser=[]
+            for comment in listComment:
+                if comment.user.id_user!=user.id_user:
+                    check=True
+                    for userCheck in listUser:
+                        if userCheck.id_user==comment.user.id_user:
+                            check=False
+                            break
+                    
+                    if check==True:
+                        listUser.append(comment.user)
+                        
+            for u in listUser:
+                NotificationPost.objects.create(title_notification=str(user.full_name)+' vừa thêm bình luận mới',body_notification=comment.content,time_notification=comment.time_cmt,is_read=0,type_notification=4,id_data=comment.id_comment,user=u)
+            
             UserRead.objects.create(comment=comment,user=user)
             specific_time = datetime.fromisoformat(str(comment.time_cmt))
             time_string_without_offset = specific_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -111,6 +129,9 @@ def delete_all_comment_user_in_post(request,id_user,id_post):
         if user is not None and post is not None:
             listComment=Comment.objects.filter(Q(user=user) & Q(post=post))
             for comment in listComment:
+                listNotification=NotificationPost.objects.filter(Q(type_notification=4) & Q(id_data=comment.id_comment))
+                for notification in listNotification:
+                    notification.delete()
                 comment.delete()
             return Response({"data":"","message":"Success","code":200},status=status.HTTP_200_OK)
         return Response({"data":"","message":"Not found","code":404},status=status.HTTP_200_OK)
@@ -192,6 +213,9 @@ def delete_comment(request,id_comment):
     if checkAu==0:
         comment=Comment.objects.get(id_comment=id_comment)
         if comment is not None:
+            listNotification=NotificationPost.objects.filter(Q(type_notification=4) & Q(id_data=comment.id_comment))
+            for notification in listNotification:
+                notification.delete()
             comment.delete()
             return Response({"data":"","message":"Success","code":200},status=status.HTTP_200_OK)
         return Response({"data":"","message":"Not found","code":404},status=status.HTTP_200_OK)

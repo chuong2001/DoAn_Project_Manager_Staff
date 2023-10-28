@@ -8,13 +8,15 @@ from .serializer import PostSerializer,TypePostSerializer
 from rest_framework import status
 from datetime import datetime
 from django.db.models import Max
+from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from notification_service.models import NotificationPost
 import os
 import pytz
 from user_service.jsonwebtokens import verify_jwt
 
-mainUrl='http:/192.168.11.103:8000/'
+mainUrl='http:/192.168.1.12:8000/'
 
 def checkAuthorization(request):
     authorization_header = request.META.get('HTTP_AUTHORIZATION')
@@ -47,6 +49,9 @@ def add_post(request,id_user):
             num_comment=data.get("num_comment"),
             user=user)
             post.save()
+            listUser=User.objects.all()
+            for u in listUser:
+                NotificationPost.objects.create(title_notification=str(user.full_name)+' đã thêm tin tức mới',body_notification=post.header_post,time_notification=post.time_post,is_read=0,type_notification=1,id_data=post.id_post,user=u)
             serializer = PostSerializer(post)
             return Response({"data":serializer.data,"message":"Success","code":201},status=status.HTTP_200_OK)
         serializer = PostSerializer(Post())
@@ -84,9 +89,13 @@ def update_post(request,id_post):
                         check=False
                         break
                 if check==True and os.path.exists(image.image):
-                    os.remove('D:/DoAnTotNNghiep/ManagerStaff/media/'+image.image)
+                    os.remove('D:/DoAnTotNNghiep/ManagerStaff/'+image.image)
             
             images_to_delete.delete()
+            listNotification=NotificationPost.objects.filter(Q(type_notification=1) & Q(id_data=post.id_post))
+            for notification in listNotification:
+                notification.set_body_notification(post.header_post)
+                notification.save()
             serializer = PostSerializer(post)
             return Response({"data":serializer.data,"message":"Success","code":200},status=status.HTTP_200_OK)
         serializer = PostSerializer(Post())
@@ -250,6 +259,9 @@ def delete_post(request,id_post):
             comment_to_delete = Comment.objects.filter(post=post)
             for comment in comment_to_delete:
                 comment.delete()
+            listNotification=NotificationPost.objects.filter(Q(type_notification=1) & Q(id_data=post.id_post))
+            for notification in listNotification:
+                notification.delete()
             post.delete()
             return Response({"data":"","message":"Success","code":200},status=status.HTTP_200_OK)
         return Response({"data":"","message":"Not found","code":404},status=status.HTTP_200_OK)

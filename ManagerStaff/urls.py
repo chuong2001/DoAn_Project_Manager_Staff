@@ -13,4 +13,5 @@ urlpatterns = [
     path("api/time/", include("time_service.urls")),
     path("api/feedback/", include("feedback_service.urls")),
     path("api/calendar/", include("calendar_service.urls")),
+    path("api/notification/", include("notification_service.urls")),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

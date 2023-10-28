@@ -20,6 +20,7 @@ import random
 import bcrypt
 import string
 from .jsonwebtokens import create_jwt,verify_jwt
+from notification_service.models import NotificationPost
 
 def generate_random_code(length):
     characters = string.ascii_letters + string.digits
@@ -136,7 +137,7 @@ def check_token(request):
 
 @api_view(['POST'])
 def forgot_password(request):
-    data=request.POST
+    data=request.GET
     username=data.get('username')
     account=Account.objects.get(username=username)
     if account is not None:
@@ -377,7 +378,9 @@ def delete_user(request,id_user):
         account=Account.objects.get(user=user)
         listPosts=Post.objects.filter(user=user)
         listComments=Comment.objects.filter(user=user)
-            
+        listNotification=NotificationPost.objects.filter(user=user)
+        for notification in listNotification:
+            notification.delete()
         for timein in listTimeIn:
             timein.delete()
         

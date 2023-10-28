@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from .serializer import FeedbackSerializer
 from rest_framework import status
 from datetime import datetime
+from django.db.models import Q
 from user_service.jsonwebtokens import verify_jwt
+from notification_service.models import NotificationPost
 
 # Create your views here.
 
@@ -36,6 +38,8 @@ def add_feedback(request,id_user):
             user=user
             )
             feedback.save()
+            admin=User.objects.get(is_admin=1)
+            NotificationPost.objects.create(title_notification=str(user.full_name)+' đã gửi phản hồi mới',body_notification=feedback.content,time_notification=feedback.time_feedback,is_read=0,type_notification=3,id_data=feedback.id_feedback,user=admin)
             return Response({"data":"","message":"Success","code":201},status=status.HTTP_201_CREATED)
         return Response({"data":"","message":"Not found","code":404},status=status.HTTP_200_OK)
     elif checkAu==1:
@@ -97,6 +101,8 @@ def delete_feedback(request,id_feedback):
     if checkAu==0:
         feedback=Feedback.objects.get(id_feedback=id_feedback)
         if feedback is not None:
+            notification=NotificationPost.objects.get(Q(type_notification=3) & Q(id_data=feedback.id_feedback))
+            notification.delete()
             feedback.delete()
             return Response({"data":"","message":"Success","code":200},status=status.HTTP_200_OK)
         return Response({"data":"","message":"Not found","code":404},status=status.HTTP_200_OK)
